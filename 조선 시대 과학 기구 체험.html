@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>조선 시대 과학 기구 체험</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&display=swap">
+<style>
+:root{--bg:#eef2f1;--card:#fff;--ink:#1d2b36;--sub:#5b6b76;--pri:#1f4e8c;--pri-t:#fff;--line:#c9d5d8;--ok:#1e7a4a;--bad:#b3392f;--sv:#f7faf9;--bowl:#d7c48f;--bg2:#e3ebea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#12191e;--card:#1b252c;--ink:#e6eef0;--sub:#9fb0b8;--pri:#6aa3e8;--pri-t:#0c1a2a;--line:#33444d;--ok:#5fd18f;--bad:#ff8a7d;--sv:#232f37;--bowl:#b9a56e;--bg2:#243038}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#12191e;--card:#1b252c;--ink:#e6eef0;--sub:#9fb0b8;--pri:#6aa3e8;--pri-t:#0c1a2a;--line:#33444d;--ok:#5fd18f;--bad:#ff8a7d;--sv:#232f37;--bowl:#b9a56e;--bg2:#243038}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Apple SD Gothic Neo","Malgun Gothic",sans-serif;min-height:100vh}
+.w{max-width:980px;margin:0 auto;padding:16px}
+h1{font:700 clamp(24px,4vw,36px)/1.2 "Gowun Batang",serif;margin:8px 0 14px;cursor:pointer}
+.nav,.sub,.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+button,select,input{font:inherit;color:var(--ink)}
+button{background:var(--card);border:2px solid var(--line);border-radius:10px;padding:9px 16px;cursor:pointer;font-weight:600}
+button:hover{border-color:var(--pri)}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+button.on,button.p{background:var(--pri);color:var(--pri-t);border-color:var(--pri)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.sub button{border-radius:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+svg{width:100%;height:auto;display:block;background:var(--sv);border-radius:10px;user-select:none}
+svg text{fill:var(--ink);font-family:inherit}
+#msg{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--bg2);border-left:5px solid var(--pri);min-height:50px}
+#msg.ok{border-color:var(--ok)}#msg.bad{border-color:var(--bad)}
+.st{font-weight:700;color:var(--sub);margin:0 0 8px}
+.home{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.home .card{cursor:pointer;text-align:center;border-width:2px}.home .card:hover{border-color:var(--pri)}
+.home b{font:700 24px "Gowun Batang",serif}.home p{color:var(--sub);margin:6px 0 0}
+input[type=number],select{padding:8px;border:2px solid var(--line);border-radius:8px;background:var(--card);width:110px}
+input[type=range]{accent-color:var(--pri);width:200px}
+.rl{touch-action:none;cursor:ns-resize}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body><div class="w">
+<h1 onclick="go('home')">조선 시대 과학 기구 체험</h1>
+<div class="nav" id="nav"></div><div class="sub" id="sub"></div>
+<div class="card" id="box"></div><div id="msg">기구를 골라 체험을 시작해 보세요.</div>
+</div>
+<script>
+const $=s=>document.querySelector(s),N={rain:'측우기',sun:'앙부일구',clock:'자격루'};
+let cur='home',mode='play',raf=0,cleanup=()=>{};
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[rnd(0,a.length-1)];
+function msg(t,c){const m=$('#msg');m.className=c||'';m.innerHTML=t}
+function go(k,m){cancelAnimationFrame(raf);cleanup();cleanup=()=>{};cur=k;mode=m||'play';
+ $('#nav').innerHTML=Object.keys(N).map(k=>`<button class="${k==cur?'on':''}" onclick="go('${k}')">${N[k]}</button>`).join('');
+ $('#sub').innerHTML=cur=='home'?'':[['play','기구 작동해 보기'],['quiz','문제 해결하기']].map(([m,t])=>`<button class="${m==mode?'on':''}" onclick="go('${cur}','${m}')">${t}</button>`).join('');
+ if(cur=='home'){$('#box').innerHTML='<div class="home">'+Object.keys(N).map(k=>`<div class="card" tabindex=0 onclick="go('${k}')"><b>${N[k]}</b><p>${{rain:'비의 양을 재 보아요',sun:'그림자로 시각을 읽어요',clock:'물로 시간을 맞춰요'}[k]}</p></div>`).join('')+'</div>';msg('기구를 골라 체험을 시작해 보세요.');return}
+ ({rain,sun,clock})[cur]()}
+function loop(fn){let l=performance.now();const f=t=>{fn(Math.min(.05,(t-l)/1000));l=t;raf=requestAnimationFrame(f)};raf=requestAnimationFrame(f)}
+const btn=(id,t,c)=>`<button id="${id}" class="${c||''}">${t}</button>`;
+const on=(id,f)=>{const e=document.getElementById(id);if(e)e.onclick=f};
+
+/* ---------- 측우기 ---------- */
+function rain(){
+ const Q=mode=='quiz',Y=330;let L=0,raining=false,mk=0,drag=false,target=0,fin=false,ds=[];
+ let t='';for(let i=0;i<=50;i++){const y=Y-4*i,l=i%10==0?26:i%5==0?18:10;t+=`<line x1="250" x2="${250-l}" y1="${y}" y2="${y}" stroke="#5a4520" stroke-width="1"/>`+(i%10==0?`<text x="${250-l-4}" y="${y+4}" font-size="12" text-anchor="end" fill="#3a2c10" style="fill:#3a2c10">${i}</text>`:'')}
+ $('#box').innerHTML=`<p class="st" id="st"></p><svg id="sv" viewBox="0 0 760 380"><rect x="0" y="352" width="760" height="28" fill="#8a9a86"/>
+ <rect x="215" y="122" width="35" height="210" fill="#e3c88a" stroke="#5a4520"/>${t}<text x="232" y="112" font-size="14" text-anchor="middle">주척(mm)</text>
+ <rect x="285" y="336" width="130" height="16" fill="#9aa3a6"/><rect id="wa" x="301" y="${Y}" width="98" height="0" fill="#4a90c8" opacity=".85"/>
+ <path d="M300 118V336H400V118" fill="none" stroke="#6b5a48" stroke-width="5"/><text x="350" y="372" font-size="13" text-anchor="middle" style="fill:#2a2a2a">측우기</text>
+ <g id="ds" stroke="#3b82c4" stroke-width="3" stroke-linecap="round"></g>
+ <rect class="rl" x="190" y="100" width="105" height="250" fill="transparent"/>
+ <g id="mk"><line x1="190" x2="299" stroke="#d33" stroke-width="2.5"/><path d="M190 -7L204 0L190 7Z" fill="#d33"/></g>
+ <text x="560" y="150" font-size="18" id="rd"></text></svg>
+ <div class="ctl">${Q?`<span>비가 그친 뒤 물의 높이(mm):</span><input type="number" id="ans" min="0" max="50" disabled>${btn('ck','정답 확인','p')}${btn('nw','다시 도전하기')}`:btn('rn','비 내리기','p')+btn('sp','비 멈추기')+btn('ms','물 높이 측정하기')+btn('rs','다시 시작')}</div>`;
+ const sv=$('#sv'),setM=m=>{mk=Math.max(0,Math.min(50,m));$('#mk').setAttribute('transform',`translate(0,${Y-4*mk})`);$('#rd').textContent=`측정값: ${mk} mm`};
+ const yy=e=>{const r=sv.getBoundingClientRect();return(e.clientY-r.top)*380/r.height};
+ sv.onpointerdown=e=>{if(e.target.classList.contains('rl')){drag=true;sv.setPointerCapture(e.pointerId);setM(Math.round((Y-yy(e))/4))}};
+ sv.onpointermove=e=>{if(drag)setM(Math.round((Y-yy(e))/4))};sv.onpointerup=()=>drag=false;
+ const upd=()=>{$('#wa').setAttribute('y',Y-4*L);$('#wa').setAttribute('height',4*L);
+  $('#st').textContent='상태: '+(raining?'비가 내리는 중':L>0?'비가 멈췄어요':'측우기가 비어 있어요')};
+ function newQ(){L=0;fin=false;raining=true;target=rnd(5,35);setM(0);$('#ans').disabled=true;$('#ans').value='';msg('오늘 한양에 비가 내려요. 비가 그치면 주척의 빨간 선을 물의 표면까지 끌어 올려 높이를 재 보세요.')}
+ loop(dt=>{if(raining){const r=Q?7:4;L=Math.min(Q?target:50,L+r*dt);if(Q&&L>=target){L=target;raining=false;fin=true;$('#ans').disabled=false;msg('비가 그쳤어요! 주척의 0은 측우기 바닥이에요. 빨간 선을 물 표면에 맞추고 값을 입력하세요.')}
+  for(let i=0;i<3;i++)ds.push({x:240+Math.random()*220,y:20})}
+  ds.forEach(d=>d.y+=380*dt*1.1);const top=Y-4*L;ds=ds.filter(d=>d.y<((d.x>301&&d.x<399)?top:352));
+  $('#ds').innerHTML=ds.map(d=>`<line x1="${d.x|0}" x2="${d.x|0}" y1="${d.y|0}" y2="${d.y+9|0}"/>`).join('');upd()});
+ if(Q){newQ();on('nw',newQ);on('ck',()=>{if(!fin)return msg('비가 그칠 때까지 기다려 주세요.');const v=parseFloat($('#ans').value);if(isNaN(v))return msg('측정한 값을 입력해 주세요.','bad');
+  v==target?msg(`정확하게 측정했어요! 측우기에 담긴 물의 깊이(${target}mm)로 비의 양을 알 수 있습니다.`,'ok'):msg('주척의 눈금을 다시 살펴보세요. 물의 표면이 어느 눈금에 있는지 확인해 봅시다.','bad')})}
+ else{msg('‘비 내리기’를 눌러 측우기에 물을 모아 보세요.');
+  on('rn',()=>{raining=true;msg('비가 내려 물이 차오르고 있어요.')});on('sp',()=>{raining=false;msg('비가 멈췄어요. 이제 주척을 움직여 물 높이를 재 보세요.')});
+  on('rs',()=>{raining=false;L=0;setM(0);msg('처음 상태로 돌아왔어요.')});
+  on('ms',()=>{if(raining)return msg('먼저 ‘비 멈추기’를 눌러 주세요.','bad');if(L<.5)return msg('측우기에 물이 없어요. 비를 내려 보세요.','bad');
+   Math.abs(mk-L)<=1?msg(`성공! 측정값 ${mk}mm. 측우기에 담긴 물의 깊이가 곧 강수량이에요.`,'ok'):msg(mk>L?'빨간 선이 물 표면보다 높아요. 아래로 내려 보세요.':'빨간 선이 물 표면보다 낮아요. 위로 올려 보세요.','bad')})}
+ setM(0)}
+
+/* ---------- 앙부일구 ---------- */
+function sun(){
+ const Q=mode=='quiz',R=Math.PI/180,F=37.57*R,CX=560,CY=190,BR=150,D={봄:12,여름:23.4,가을:-12,겨울:-23.4};
+ let se='여름',tm=6,play=false,pn=false,sc=false,qh,qs,ph=null,pse=null;
+ const vec=(H,d)=>{H*=R;d*=R;return[-Math.cos(d)*Math.sin(H),Math.sin(d)*Math.cos(F)-Math.cos(d)*Math.cos(H)*Math.sin(F),Math.sin(F)*Math.sin(d)+Math.cos(F)*Math.cos(d)*Math.cos(H)]};
+ const B=s=>[CX-BR*s[0],CY+BR*s[1]];
+ let g='';const dl=[[23.4,'하지(여름)','#c0392b'],[12,'봄','#b0742a'],[0,'춘·추분','#2e7d4f'],[-12,'가을','#b0742a'],[-23.4,'동지(겨울)','#1f5fa8']];
+ dl.forEach(([d,n,c])=>{let p=[];for(let H=-100;H<=100;H+=4){const s=vec(H,d);if(s[2]>.03)p.push(B(s))}
+  if(p.length>1){g+=`<polyline points="${p.map(q=>q.map(Math.round)).join(' ')}" fill="none" stroke="${c}" stroke-width="1.6" ${Math.abs(d)==12?'stroke-dasharray="5 4"':''}/>`;const m=B(vec(0,d));g+=`<text x="${m[0]+6}" y="${m[1]+4}" font-size="11" style="fill:${c}">${n}</text>`}});
+ for(let h=6;h<=18;h++){let p=[],lab=null;for(let d=-23.4;d<=23.5;d+=4.68){const s=vec(15*(h-12),d);if(s[2]>.03)p.push(B(s))}
+  if(p.length>1){g+=`<polyline points="${p.map(q=>q.map(Math.round)).join(' ')}" fill="none" stroke="#5a4520" stroke-width="${h==12?2.4:1}" opacity=".8"/>`;
+   const e=p[0],ox=e[0]-CX,oy=e[1]-CY,l=Math.hypot(ox,oy)||1;if(h>6&&h<18)g+=`<text x="${e[0]+ox/l*13}" y="${e[1]+oy/l*13+4}" font-size="13" font-weight="700" text-anchor="middle" style="fill:#3a2c10">${h}시</text>`}}
+ $('#box').innerHTML=`<p class="st" id="st"></p><svg viewBox="0 0 760 380"><g id="sk"></g><circle cx="${CX}" cy="${CY}" r="${BR}" fill="var(--bowl)" stroke="#7a6a45" stroke-width="4"/>${g}
+ <line x1="${CX}" y1="${CY}" x2="${CX}" y2="${CY-BR*.79}" stroke="#5b3a1a" stroke-width="5" stroke-linecap="round"/><text x="${CX}" y="${CY-BR*.79-6}" font-size="12" text-anchor="middle" style="fill:#3a2c10">영침</text>
+ <line id="sl" x1="${CX}" y1="${CY}" x2="${CX}" y2="${CY}" stroke="#222" stroke-dasharray="4 3"/><circle id="sd" r="8" fill="#111" stroke="#fff" stroke-width="2" display="none"/>
+ <text x="${CX}" y="${CY+BR+22}" font-size="13" text-anchor="middle">앙부일구 시계판 (위에서 본 모습, 위쪽이 북쪽)</text></svg>
+ <div class="ctl" id="cc">${Q?`<label>시각 <select id="qh"><option value="">선택</option>${Array.from({length:11},(_,i)=>`<option>${i+7}</option>`).join('')}</select>시</label><span id="qs">${Object.keys(D).map(k=>`<button data-s="${k}">${k}</button>`).join('')}</span>${btn('ck','정답 확인','p')}${btn('nw','다시 도전하기')}`:`${btn('pl','시간 흐르기','p')}${btn('pa','일시 정지')}<input type="range" id="tr" min="5" max="19" step=".05" value="6" aria-label="시각"><span id="ss">${Object.keys(D).map(k=>`<button data-s="${k}" class="${k==se?'on':''}">${k}</button>`).join('')}</span>${btn('rs','다시 시작')}`}</div>`;
+ const sk=(s,hide)=>{let o=`<path d="M40 300A130 130 0 0 1 300 300" fill="none" stroke="var(--line)" stroke-width="2" stroke-dasharray="6 5"/><rect x="0" y="300" width="340" height="80" fill="#6f8a6a" opacity=".5"/><text x="30" y="325" font-size="14">동쪽</text><text x="270" y="325" font-size="14">서쪽</text><text x="170" y="355" font-size="13" text-anchor="middle">남쪽을 바라본 하늘</text>`;
+  if(hide)return o+`<text x="170" y="170" font-size="15" text-anchor="middle">태양은 보이지 않아요.</text><text x="170" y="195" font-size="15" text-anchor="middle">그림자만 보고 알아내요!</text>`;
+  if(s[2]>0){const x=170-s[0]*130,y=300-s[2]*130;o+=`<line x1="${x}" y1="${y}" x2="${x}" y2="300" stroke="#e8a317" stroke-dasharray="3 4"/><circle cx="${x}" cy="${y}" r="20" fill="#f6b73c" stroke="#e08a00" stroke-width="3"/>`}return o};
+ const draw=(H,d)=>{const s=vec(H,d),up=s[2]>.03;$('#sk').innerHTML=sk(s,Q);const sd=$('#sd'),sl=$('#sl');
+  if(up){const p=B(s);sd.setAttribute('cx',p[0]);sd.setAttribute('cy',p[1]);sd.setAttribute('display','');sl.setAttribute('x2',p[0]);sl.setAttribute('y2',p[1])}else{sd.setAttribute('display','none');sl.setAttribute('x2',CX);sl.setAttribute('y2',CY)}
+  if(!Q){const h=Math.floor(tm),m=Math.floor((tm-h)*60);$('#st').textContent=`${se} · ${h}시 ${String(m).padStart(2,'0')}분 · `+(up?`태양 높이 ${Math.round(Math.asin(s[2])/R)}°`:'해가 아직 뜨지 않았거나 졌어요')}}
+ const sync=()=>{draw(15*(tm-12),D[se]);$('#tr').value=tm;if(tm>12)pn=true;if(pn&&sc&&!ph){ph=1;msg('성공! 해가 동쪽에서 서쪽으로 움직이는 동안 그림자가 시각선을 따라 움직이고, 계절을 바꾸니 그림자의 길이와 자리가 달라졌어요.','ok')}};
+ const ssel=(box,f)=>box.querySelectorAll('button').forEach(b=>b.onclick=()=>f(b.dataset.s,b));
+ if(Q){const nq=()=>{do{qh=rnd(7,17);qs=pick(Object.keys(D))}while(vec(15*(qh-12),D[qs])[2]<.08);pse=null;$('#qh').value='';$('#qs').querySelectorAll('button').forEach(b=>b.classList.remove('on'));draw(15*(qh-12),D[qs]);$('#st').textContent='그림자 끝(검은 점)이 가리키는 시각과 계절을 맞혀 보세요.';msg('시각선(시)과 절기선(계절)을 함께 살펴보세요. 시각선은 갈색, 절기선은 색깔 선이에요.')};
+  nq();on('nw',nq);ssel($('#qs'),(k,b)=>{pse=k;$('#qs').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x==b))});
+  on('ck',()=>{const h=+$('#qh').value;if(!h||!pse)return msg('시각과 계절을 모두 선택해 주세요.','bad');
+   const E={여름:'여름에는 해가 높이 떠서 그림자가 짧고 시계판 안쪽(하지선 쪽)에 나타나요.',겨울:'겨울에는 해가 낮아 그림자가 길고 시계판 바깥쪽(동지선 쪽)에 나타나요.',봄:'봄에는 춘·추분선과 하지선 사이에 그림자가 나타나요.',가을:'가을에는 춘·추분선과 동지선 사이에 그림자가 나타나요.'};
+   h==qh&&pse==qs?msg(`정답입니다! ${qh}시, ${qs}이에요. 그림자가 ${qh}시선 위에 있고, ${E[qs]}`,'ok'):msg(`그림자의 위치와 길이를 다시 살펴보세요. 시각선과 절기선을 함께 확인해 봅시다. (${h!=qh?'시각이 달라요':'시각은 맞아요'} / ${pse!=qs?'계절이 달라요':'계절은 맞아요'})`,'bad')})}
+ else{msg('‘시간 흐르기’를 누르고, 계절도 바꿔 보세요. 검은 점이 그림자 끝이에요.');
+  loop(dt=>{if(play){tm+=dt*1.2;if(tm>=19){tm=19;play=false}sync()}});
+  on('pl',()=>{if(tm>=19)tm=6;play=true});on('pa',()=>play=false);$('#tr').oninput=e=>{tm=+e.target.value;sync()};
+  on('rs',()=>{tm=6;play=false;pn=sc=false;ph=null;sync();msg('다시 시작했어요.')});
+  ssel($('#ss'),(k,b)=>{se=k;sc=true;$('#ss').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x==b));sync()});sync()}}
+
+/* ---------- 자격루 ---------- */
+function clock(){
+ const Q=mode=='quiz',TH=100,PTS=[[380,140],[540,140],[540,212]];
+ let h=0,el=0,run=false,fired=false,rate=Q?3:8,tl=1,use=0,chg=false,bp=-1,h0=0,T=0,tr=0;
+ const info={파수호:'파수호: 물을 담아 두었다가 수수호로 일정하게 흘려 보내요.',수수호:'수수호: 파수호에서 온 물이 모여 수위가 천천히 올라가요.',부전:'부전: 수수호 물 위에 떠서 수위와 함께 올라가는 막대예요.',구슬:'구슬: 부전이 정해진 높이에 닿으면 굴러가 시보 장치를 건드려요.','종·북':'종과 북: 구슬이 움직이면 울려 시각을 알려요.'};
+ $('#box').innerHTML=`<p class="st" id="st"></p><svg id="sv" viewBox="0 0 760 380">
+ <g data-p="파수호" style="cursor:pointer"><rect x="50" y="40" width="130" height="120" rx="6" fill="#6b4a2b" opacity=".25" stroke="#6b4a2b" stroke-width="5"/><rect id="tw" x="55" y="45" width="120" height="110" fill="#4a90c8" opacity=".85"/><text x="115" y="32" font-size="14" text-anchor="middle">파수호</text></g>
+ <path d="M115 160V185H375V198" fill="none" stroke="#6b4a2b" stroke-width="8"/><path id="fw" d="M115 160V185H375V198" fill="none" stroke="#4a90c8" stroke-width="4" stroke-dasharray="8 6" display="none"/>
+ <g data-p="수수호" style="cursor:pointer"><rect id="wa" x="340" y="355" width="70" height="0" fill="#4a90c8" opacity=".85"/><path d="M335 195V358H415V195" fill="none" stroke="#6b4a2b" stroke-width="6"/><text x="375" y="374" font-size="14" text-anchor="middle">수수호</text></g>
+ <line x1="335" x2="415" y1="205" y2="205" stroke="#d33" stroke-dasharray="5 4"/><text x="425" y="209" font-size="12" style="fill:var(--bad)">시보 높이</text>
+ <g id="fl" data-p="부전" style="cursor:pointer"><line x1="375" x2="375" y1="355" y2="295" stroke="#6b4a2b" stroke-width="5"/><rect x="352" y="350" width="46" height="9" rx="3" fill="#a0692f"/><text x="405" y="333" font-size="13" display="none">부전</text></g>
+ <polyline points="${PTS.map(p=>p.join(',')).join(' ')}" fill="none" stroke="var(--line)" stroke-width="5" stroke-linecap="round"/><g data-p="구슬" style="cursor:pointer"><circle id="bd" cx="380" cy="140" r="8" fill="#c0392b"/><text x="458" y="132" font-size="13">구슬 길</text></g>
+ <g data-p="종·북" style="cursor:pointer"><g id="bl"><path d="M520 268q0-56 20-56q20 0 20 56z" fill="#b9892f" stroke="#7a5a1a" stroke-width="3"/></g><text x="540" y="292" font-size="14" text-anchor="middle">종</text><g id="dr"><ellipse cx="660" cy="270" rx="46" ry="32" fill="#a83a2a" stroke="#6b2018" stroke-width="4"/></g><text x="660" y="324" font-size="14" text-anchor="middle">북</text></g>
+ <text id="bm" x="600" y="90" font-size="26" font-weight="700" text-anchor="middle" style="fill:var(--bad)"></text></svg>
+ <div class="ctl"><label>물의 유량 <input type="range" id="rt" min="1" max="10" step=".5" value="${rate}"> <b id="rv"></b> 칸/초</label>${Q?btn('rn','작동 시작','p')+btn('rt2','다시 시도')+btn('nw','새 문제'):btn('fi','물 채우기')+btn('rn','작동 시작','p')+btn('sp','일시 정지')+btn('rs','초기화')}</div><small style="color:var(--sub)">※ 실제 자격루의 구조를 단순화한 가상 실험이에요. 수위는 0~100칸, 100칸이 되면 시보 장치가 작동해요.</small>`;
+ const S=$('#sv');S.onclick=e=>{const g=e.target.closest('[data-p]');if(g)msg(info[g.dataset.p])};
+ const draw=()=>{$('#tw').setAttribute('y',45+110*(1-tl));$('#tw').setAttribute('height',110*tl);$('#wa').setAttribute('y',355-1.5*h);$('#wa').setAttribute('height',1.5*h);
+  $('#fl').setAttribute('transform',`translate(0,${-1.5*h})`);$('#fw').setAttribute('display',run?'':'none');$('#fw').setAttribute('stroke-dashoffset',-(performance.now()/40|0)%14);
+  $('#rv').textContent=rate;$('#st').textContent=`수위 ${h.toFixed(0)}칸 · 흐른 시간 ${el.toFixed(1)}초`+(Q?` · 목표 ${T.toFixed(1)}초 (처음 수위 ${h0}칸)`:'');
+  let p=bp<0?0:bp,x,y;if(p<=1){const a=PTS[Math.min(2,Math.floor(p*2))],b=PTS[Math.min(2,Math.floor(p*2)+1)],f=p*2%1;x=a[0]+(b[0]-a[0])*f;y=a[1]+(b[1]-a[1])*f;if(bp<0){x=380;y=140-(h>=TH?0:0)}}else{x=540;y=212}
+  $('#bd').setAttribute('cx',x);$('#bd').setAttribute('cy',y);
+  const q=bp>1?bp-1:0,ring=q>0&&q<3;$('#bl').setAttribute('transform',ring?`rotate(${Math.sin(q*30)*10} 540 212)`:'');$('#dr').setAttribute('transform',ring?`translate(660 270) scale(${1+Math.abs(Math.sin(q*14))*.08}) translate(-660 -270)`:'');$('#bm').textContent=ring?'땡! 둥! 시각을 알려요':''};
+ const reset=()=>{h=Q?h0:0;el=0;run=false;fired=false;bp=-1;chg=false;draw()};
+ const fire=()=>{h=TH;run=false;fired=true;bp=0;if(Q){const d=el-T;$('#rt').disabled=false;
+   if(Math.abs(d)<=.35)msg(`정확한 시간에 시보 장치가 작동했어요! 목표 ${T.toFixed(1)}초, 실제 ${el.toFixed(1)}초. 올라가야 할 수위 (100−${h0})칸을 유량 ${rate}칸/초로 나누면 ${((TH-h0)/rate).toFixed(1)}초가 걸려요.`,'ok');
+   else msg(`목표 ${T.toFixed(1)}초, 실제 ${el.toFixed(1)}초 (${Math.abs(d).toFixed(1)}초 ${d<0?'빠름':'늦음'}). `+(d<0?'시보 장치가 너무 일찍 작동했어요. 물의 공급량을 줄여 다시 시도해 봅시다.':'시보 장치가 늦게 작동했어요. 물의 공급량을 늘려 다시 시도해 봅시다.'),'bad')}
+  else msg(chg?'작동은 했지만 도중에 유량을 바꿔서 시간이 일정하지 않았어요. 초기화 후 유량을 고정하고 다시 해 보세요.':`성공! 물이 일정하게 흘러 ${el.toFixed(1)}초 만에 수위가 100칸에 닿아 시보 장치가 작동했어요.`,chg?'bad':'ok')};
+ loop(dt=>{if(run){if(tl<=0){run=false;msg('파수호의 물이 떨어졌어요. ‘물 채우기’를 눌러 주세요.','bad')}else{h=Math.min(TH,h+rate*dt);el+=dt;use+=rate*dt;tl=Math.max(0,1-use/500);if(h>=TH)fire()}}
+  if(bp>=0&&bp<4)bp+=dt*(bp<1?.8:1);draw()});
+ $('#rt').oninput=e=>{rate=+e.target.value;if(run)chg=true;draw()};
+ const nq=()=>{let r;do{r=pick([4,5,6,8,10]);h0=pick([0,20,40,50]);T=(TH-h0)/r}while(T<6||T>25);tr=r;rate=3;$('#rt').value=3;use=0;tl=1;reset();msg('목표 시간에 시보 장치가 작동하도록 물의 유량을 맞춰 보세요. 수수호에 처음부터 물이 조금 들어 있을 수 있어요.')};
+ on('rn',()=>{if(fired)return msg('이미 작동했어요. '+(Q?'‘다시 시도’':'‘초기화’')+'를 눌러 주세요.','bad');run=true;if(Q)$('#rt').disabled=true;msg('물이 흐르고 있어요. 수위와 부전이 오르는 모습을 관찰하세요.')});
+ if(Q){nq();on('nw',nq);on('rt2',()=>{tl=1;use=0;$('#rt').disabled=false;reset();msg('같은 문제에 다시 도전해요. 유량을 바꿔 보세요.')})}
+ else{h=0;draw();msg('파수호에 물이 가득 있어요. ‘작동 시작’을 눌러 보세요. 부품을 클릭하면 설명이 나와요.');
+  on('fi',()=>{tl=1;use=0;msg('파수호를 다시 가득 채웠어요.')});on('sp',()=>{run=false;msg('잠시 멈췄어요.')});on('rs',()=>{tl=1;use=0;reset();msg('처음 상태로 돌아왔어요.')})}}
+go('home');
+</script></body></html>
